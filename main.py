@@ -108,12 +108,21 @@ def download_rollback(url, path):
         Path(path_video).unlink()
 
 # TODO:
-#  Функция, которая считывает файл с URL и возвращает список URL
 #  Создать функцию-менеджер, которая вызывает друг за другом функции
-yt_url_lst = [
-]
-download_result = []
+
+def get_url_list(path: str) -> list[str]:
+    url_list = list()
+    with open(path, 'r') as url_file:
+        url_list = [line.rstrip('\n') for line in url_file.readlines()]
+    return url_list
+
+
+URL_PATH = "input_url.txt"
 DOWNLOAD_PATH = r"E:\Download\Other"
+
+yt_url_lst = get_url_list(URL_PATH)
+download_result = []
+
 
 for url in yt_url_lst:
     try:
