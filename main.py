@@ -117,22 +117,53 @@ def get_url_list(path: str) -> list[str]:
     return url_list
 
 
-URL_PATH = "input_url.txt"
-DOWNLOAD_PATH = r"E:\Download\Other"
+def start_download_video(from_path, to_path):
+    yt_url_lst = get_url_list(from_path)
+    download_result = []
 
-yt_url_lst = get_url_list(URL_PATH)
-download_result = []
+    for url in yt_url_lst:
+        try:
+            download_youtube_video(url, to_path)
+            download_result.append((url, "Success"))
+        except (IOError, ItagError) as exc:
+            download_result.append((url, "Failed"))
+            print(exc)
+            download_rollback(url, to_path)
+
+    for result in download_result:
+        print(result)
+
+def start_download_only_audio(yt_url, to_path):
+    yt = YouTube(yt_url, use_po_token=True, token_file="token_file.json")
+    title = clear_title(yt.title)
+    print(title)
+
+    path_audio = to_path + f"\\{title}.m4a"
+    is_audio_downloaded = Path(path_audio).exists()
+    if not is_audio_downloaded:
+        download_audio(yt, to_path, "128kbps")
 
 
-for url in yt_url_lst:
-    try:
-        download_youtube_video(url, DOWNLOAD_PATH)
-        download_result.append((url, "Success"))
-    except (IOError, ItagError) as exc:
-        download_result.append((url, "Failed"))
-        print(exc)
-        download_rollback(url, DOWNLOAD_PATH)
+def main_menu():
+    DOWNLOAD_PATH = r"E:\Download\Other"
+    URL_PATH = "input_url.txt"
+    CHOICE_EXIT = "3"
+    while True:
+        print("1. Download video from file")
+        print("2. Download only audio")
+        print(f"{CHOICE_EXIT}. Exit")
+        choice = input("Choice: ")
 
-for result in download_result:
-    print(result)
+        if choice == "1":
+            input(f"Add urls to file {URL_PATH} and press any key to continue...")
+            start_download_video(URL_PATH, DOWNLOAD_PATH)
+        elif choice == "2":
+            url_input = input("Enter URL: ")
+            start_download_only_audio(url_input, DOWNLOAD_PATH)
+        elif choice == CHOICE_EXIT:
+            break
 
+        print("=" * 100)
+
+
+main_menu()
